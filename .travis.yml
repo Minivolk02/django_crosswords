@@ -1,0 +1,27 @@
+language: python
+
+dist: xenial
+
+cache: pip
+
+python:
+- 3.7
+
+services:
+- postgresql
+
+install:
+- pip install -r requirements.txt
+- npm install -g node-qunit-phantomjs
+
+before_script:
+- export DATABASE_URL="postgres://postgres@localhost"
+- export EMAIL_HOST="mail.example.com"
+- export EMAIL_HOST_USER="dummy_user"
+- export EMAIL_HOST_PASSWORD="dummy_password"
+- export CONTACT_ADDRESS="contact@example.com"
+- python manage.py collectstatic --noinput
+
+script:
+- python manage.py test
+- node-qunit-phantomjs ./tests/js/qunit.html

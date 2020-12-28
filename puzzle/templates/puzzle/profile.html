@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль | Three Pins{% endblock %}
+
+{% block description %}Кроссворды созданы автором {% endblock %}
+
+{% block main %}
+<div class="simple-content">
+	<p> Мои кроссворды! Созданы {{ user.username }}.</p>
+	{% if unpublished %}
+	<div>
+		<h3>Не опубликован</h3>
+		<ul>
+			{% for puzzle in unpublished %}
+			<li><a href="{% url 'puzzle' user.username puzzle.number %}"'> Кроссворд #{{ puzzle.number }}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	{% if published %}
+	<div>
+		<h3>Опубликован</h3>
+		<ul>
+			{% for puzzle in published %}
+			<li><a href="{% url 'puzzle' user.username puzzle.number %}"'> Кроссворд #{{ puzzle.number }} &mdash; {{ puzzle.date }}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	{% if not published and not unpublished %}
+	<p>Нет сохраненного кроссворда - <a href="{% url 'create' %}">создать новый</a>!</p>
+	{% endif %}
+</div>
+{% endblock %}

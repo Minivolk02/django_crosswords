@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Saved | {{ user.username }} | Three Pins{% endblock %}
+
+{% block description %}Your puzzle has been saved.{% endblock %}
+
+{% block meta %}
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block main %}
+<div id="saved" class="simple-content">
+	<p><b>Your puzzle has been saved</b></p>
+	<p><b><a href="{% url 'puzzle' user.username number %}">Нажмите здесь, чтобы просмотреть или отредактировать</a></b></p>
+	<br>
+	{% if public %}
+	<p>Вы можете опубликовать ее на сайте: </p>
+	<p><span class="share-link"><a href="{% url 'puzzle' user.username number %}">www.threepins.org{% url 'puzzle' user.username number %}</a></span></p>
+	{% else %}
+	<p>Кроссворд пока не виден никому, кроме вас. Если вы отредактируете и сохраните головоломку позже, вы сможете опубликовать ее.</p>
+	{% endif %}
+	<br>
+	<p>You can view a full list of your saved puzzles in the &lsquo;<a href="{% url 'profile' %}">My Crosswords</a>&rsquo; section.</p>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+	// @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt
+	if (window.localStorage)
+		localStorage.removeItem('create');
+</script>
+{% endblock %}

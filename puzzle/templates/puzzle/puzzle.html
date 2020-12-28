@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block description %}{{ description }}{% endblock %}
+
+{% block nav %}
+<li>
+	{% if prev_puzzle >= 0 %}
+	{% block prev %}<a href="{% url 'puzzle' author prev_puzzle %}">&lt; Предыдущая</a>{% endblock %}
+	{% endif %}
+</li>
+{{ block.super }}
+<li>
+	{% if next_puzzle %}
+	{% block next %}<a href="{% url 'puzzle' author next_puzzle %}">Следующая &gt;</a>{% endblock %}
+	{% endif %}
+</li>
+{% endblock %}
+
+{% block main %}
+<div class="puzzle" role="main">
+	<div id="grid-wrapper">
+		<h3>&#35;{{ number }} - {% if date %}{{ date }}{% else %}Unpublished{% endif %} - by {{ author }}</h3>
+		<div id="grid" data-number="{{ number }}" data-author="{{ author }}">
+			<input id="ip" type="text" autocomplete="off">
+			{% for row in grid %}
+			{% for square in row %}
+			<div data-x="{{ square.col }}" data-y="{{ square.row }}"
+				 {% if square.letter %}
+				 data-a="{{ square.letter }}"
+				 {% endif %}
+				 class="{{ square.type }}">
+				{% if 'block' in square.type %}
+				<img src="{% static 'images/grey-px.png' %}" alt="block" />
+				{% endif %}
+				{% if square.number %}
+				<div class="grid-number">{{ square.number }}</div>
+				{% endif %}
+				{% block show_answers %}
+				{% endblock %}
+			</div>
+			{% endfor %}
+			{% endfor %}
+		</div>
+		<div class="buttons">
+        	{% block solution %}
+			<a href="{% url 'solution' author number %}">Решение</a>
+	        {% endblock %}
+		</div>
+	</div>
+	<div id="clues">
+		<div class="clue-box">
+			<h4>По горизонтали</h4>
+			<ul>
+				{% for c in across_clues %}
+				<li><span class="clue-number">{{ c.number }}</span> {{ c.clue|safe }} ({{ c.numeration }})</li>
+				{% endfor %}
+			</ul>
+		</div>
+		<div class="clue-box">
+			<h4>По вертикали</h4>
+			<ul>
+				{% for c in down_clues %}
+				<li><span class="clue-number">{{ c.number }}</span> {{ c.clue|safe }} ({{ c.numeration }})</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'puzzle/grid.js' %}"></script>
+<script>
+	// @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt
+	var grid = new GridModule.Grid(15);
+	var storage = 'solve-{{ author }}-{{ number }}';
+	grid.loadGrid(document.getElementById('grid'), storage);
+	grid.loadLetters();
+
+	var input = new GridModule.GridInput(grid);
+	input.registerControl(document.getElementById('ip'), document.getElementById('antique-IE'));
+
+	var editUrl = undefined;
+	var editCookie = undefined;
+
+	{% if user.username == author %}
+	editUrl = "{% url 'edit' author number %}";
+	editCookie = 'edit-{{ author }}-{{ number }}';
+	{% endif %}
+
+	GridModule.makeButtonBox(grid, document.getElementsByClassName('buttons')[0], editUrl, editCookie);
+
+	var squares = document.querySelectorAll('.block, .light');
+	for (var i = 0; i < squares.length; i++) {
+		squares[i].addEventListener('mousedown', function(e) {
+			if (grid.activateClicked(this))
+				input.reset();
+			e.preventDefault();
+			return false;
+		});
+	}
+	// @license-end
+</script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "puzzle/puzzle.html" %}
+
+{% block meta %}
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block show_answers %}
+{% if square.letter %}
+<span class="letter">{{ square.letter }}</span>
+{% endif %}
+{% endblock %}
+
+{% block js %}
+{% endblock %}
+
+{% block solution %}
+{% endblock %}
