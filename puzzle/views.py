@@ -18,15 +18,18 @@ from puzzle.construction import display_puzzle, get_date_string
 from puzzle.construction import create_thumbnail, get_or_create_user, save_puzzle
 from puzzle.models import Puzzle, Blank
 
+
 @gzip_page
 def latest(request):
     """Show the latest published puzzle."""
     obj = Puzzle.objects.filter(user__is_staff=True,
                                 pub_date__lte=timezone.now()).latest('pub_date')
+
     title = 'Three Pins - A cryptic crossword outlet'
     description = 'A free interactive site dedicated to amateur cryptic crosswords. ' \
                   'Solve online or on paper.'
     return display_puzzle(request, obj, title, description, 'puzzle/puzzle.html')
+
 
 @gzip_page
 def puzzle(request, author, number):
@@ -37,10 +40,12 @@ def puzzle(request, author, number):
                   get_date_string(obj) + '.'
     return display_puzzle(request, obj, title, description, 'puzzle/puzzle.html')
 
-def puzzle_redirect(request, number): #pylint: disable=unused-argument
+
+def puzzle_redirect(request, number):  # pylint: disable=unused-argument
     """Redirect from the old URL scheme where no author is specified."""
     author = User.objects.filter(is_staff=True).order_by('date_joined').first().username
     return redirect('puzzle', permanent=True, author=author, number=number)
+
 
 @login_required
 @gzip_page
@@ -54,12 +59,14 @@ def edit(request, author, number):
                   get_date_string(obj) + '.'
     return display_puzzle(request, obj, title, description, 'puzzle/edit.html')
 
+
 @gzip_page
 def solution(request, author, number):
     """Show a solution by puzzle number."""
     obj = get_object_or_404(Puzzle, user__username=author, number=number)
     title = 'Solution #' + number + ' | ' + author + ' | Three Pins'
     return display_puzzle(request, obj, title, title, 'puzzle/solution.html')
+
 
 @gzip_page
 def create(request):
@@ -70,6 +77,7 @@ def create(request):
         thumbs.append(create_thumbnail(blank, 10))
     context = {'thumbs': thumbs}
     return render(request, 'puzzle/create.html', context)
+
 
 @transaction.atomic
 def save(request):
@@ -100,6 +108,7 @@ def save(request):
         return render(request, 'puzzle/saved.html', context)
     return redirect('puzzle', author=user.username, number=number)
 
+
 def users(request):
     """Show a list of users and their puzzles."""
     context = {'user_list': []}
@@ -111,6 +120,7 @@ def users(request):
                 puzzle_list.append({'number': puz.number, 'date': get_date_string(puz)})
             context['user_list'].append({'name': user.username, 'puzzles': puzzle_list})
     return render(request, 'puzzle/users.html', context)
+
 
 @login_required
 def profile(request):
